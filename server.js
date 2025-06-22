@@ -9,7 +9,7 @@ let index = require('./routes/index');
 let image = require('./routes/image');
 
 // connecting the database
-let mongodb_url = config.mongoURI.development;
+let mongodb_url = process.env.MONGODB_URI || config.mongoURI.development;
 mongoose.connect(mongodb_url,{ useNewUrlParser: true , useUnifiedTopology: true }, (err)=>{
     if (err) console.log(err)
 });
