@@ -10,8 +10,15 @@ let image = require('./routes/image');
 
 // connecting the database
 let mongodb_url = process.env.MONGODB_URI || config.mongoURI.development;
-mongoose.connect(mongodb_url,{ useNewUrlParser: true , useUnifiedTopology: true }, (err)=>{
-    if (err) console.log(err)
+console.log('Connecting to MongoDB...');
+
+mongoose.connect(mongodb_url,{ 
+    useNewUrlParser: true, 
+    useUnifiedTopology: true 
+}).then(() => {
+    console.log('Database connected successfully');
+}).catch((err) => {
+    console.log('Database connection error:', err);
 });
 
 // test if the database has connected successfully
@@ -19,6 +26,10 @@ let db = mongoose.connection;
 db.once('open', ()=>{
     console.log('Database connected successfully')
 })
+
+db.on('error', (err) => {
+    console.log('Database error:', err);
+});
 
 // Initializing the app
 const app = express();
@@ -33,6 +44,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 // body parser middleware
 app.use(express.json())
 
+// Health check endpoint for Render
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'OK', message: 'Server is running' });
+});
 
 app.use('/', index);
 app.use('/image', image);
@@ -41,6 +56,7 @@ app.use('/image', image);
 
  
 const PORT = process.env.PORT || 3000;
-app.listen(PORT,() =>{
-    console.log(`Server is listening at http://localhost:${PORT}`)
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is listening on port ${PORT}`);
+    console.log(`Server is accessible at http://0.0.0.0:${PORT}`);
 });
