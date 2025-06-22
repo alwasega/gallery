@@ -11,7 +11,6 @@ services:
       - key: PORT
         value: 3000
       - key: MONGODB_URI
-        sync: false
         value: mongodb+srv://allanwasega:QTcNJKGTiIct3JdP@moringaip1.qo4izwt.mongodb.net/darkroom?retryWrites=true&w=majority
     healthCheckPath: /
     autoDeploy: true
