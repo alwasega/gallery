@@ -3,6 +3,7 @@ pipeline {
     
     environment {
         NODE_VERSION = '18'
+        NODE_ENV = 'test'
     }
     
     stages {
@@ -32,8 +33,15 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    // Run any available tests
-                    sh 'npm test || echo "No tests found, continuing..."'
+                    // Run tests with proper error handling
+                    try {
+                        sh 'npm test'
+                        echo 'All tests passed!'
+                    } catch (Exception e) {
+                        echo 'Tests failed!'
+                        currentBuild.result = 'FAILURE'
+                        error('Tests failed - check the test output above')
+                    }
                 }
             }
         }
@@ -65,10 +73,22 @@ pipeline {
             echo 'Pipeline completed'
         }
         success {
-            echo 'Pipeline succeeded!'
+            echo 'Pipeline succeeded! All tests passed and deployment is ready.'
         }
         failure {
-            echo 'Pipeline failed!'
+            echo 'Pipeline failed! Tests failed or deployment issues occurred.'
+            // Email notification for test failures
+            emailext (
+                subject: "Pipeline Failed: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
+                body: """
+                Pipeline failed for job: ${env.JOB_NAME}
+                Build number: ${env.BUILD_NUMBER}
+                Build URL: ${env.BUILD_URL}
+                
+                Please check the Jenkins console output for more details.
+                """,
+                to: 'your-email@example.com'  // Replace with your actual email
+            )
         }
     }
 } 
