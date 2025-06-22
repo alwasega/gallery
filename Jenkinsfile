@@ -4,6 +4,7 @@ pipeline {
     environment {
         NODE_VERSION = '18'
         NODE_ENV = 'test'
+        RENDER_URL = 'https://darkroom-gallery.onrender.com' 
     }
     
     stages {
@@ -59,8 +60,6 @@ pipeline {
         stage('Deploy to Render') {
             steps {
                 script {
-                    // This stage will trigger deployment to Render
-                    // Render will automatically deploy when it detects changes
                     echo 'Deployment to Render will be triggered automatically'
                     echo 'Make sure your Render service is configured to deploy from this repository'
                 }
@@ -74,9 +73,31 @@ pipeline {
         }
         success {
             echo 'Pipeline succeeded! All tests passed and deployment is ready.'
+            
+            // Slack notification for successful deployment
+            slackSend(
+                channel: '#allan_ip1', 
+                color: 'good',
+                message: """
+                *Deployment Successful!*
+                
+                *Build Details:*
+                • Job: ${env.JOB_NAME}
+                • Build ID: #${env.BUILD_NUMBER}
+                • Build URL: ${env.BUILD_URL}
+                
+                *Deployment:*
+                • Site URL: ${env.RENDER_URL}
+                • Status: All tests passed
+                • Deployed to: Render
+                
+                Your gallery application is now live!
+                """
+            )
         }
         failure {
             echo 'Pipeline failed! Tests failed or deployment issues occurred.'
+            
             // Email notification for test failures
             emailext (
                 subject: "Pipeline Failed: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
@@ -87,7 +108,26 @@ pipeline {
                 
                 Please check the Jenkins console output for more details.
                 """,
-                to: 'your-email@example.com'  // Replace with your actual email
+                to: 'allan.wasega@student.moringaschool.com'
+            )
+            
+            // Slack notification for failures
+            slackSend(
+                channel: '#allan_ip1',
+                color: 'danger',
+                message: """
+                 *Pipeline Failed!*
+                
+                *Build Details:*
+                • Job: ${env.JOB_NAME}
+                • Build ID: #${env.BUILD_NUMBER}
+                • Build URL: ${env.BUILD_URL}
+                
+                *Issue:*
+                • Tests failed or deployment issues occurred
+                • Check Jenkins console for details
+                
+                """
             )
         }
     }
