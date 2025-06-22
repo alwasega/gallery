@@ -4,12 +4,14 @@ services:
     env: node
     plan: free
     buildCommand: npm install
-    startCommand: node minimal-server.js
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 3000
+      - key: MONGODB_URI
+        value: mongodb+srv://allanwasega:QTcNJKGTiIct3JdP@moringaip1.qo4izwt.mongodb.net/darkroom-dev?retryWrites=true&w=majority
     healthCheckPath: /health
     autoDeploy: true
     branch: ip1 
