@@ -76,8 +76,9 @@ pipeline {
             
             // Slack notification for successful deployment
             slackSend(
-                channel: '#allan_ip1', 
+                channel: '#allan_ip1',
                 color: 'good',
+                tokenCredentialId: 'jenkins-slack-token',
                 message: """
                 *Deployment Successful!*
                 
@@ -115,6 +116,7 @@ pipeline {
             slackSend(
                 channel: '#allan_ip1',
                 color: 'danger',
+                tokenCredentialId: 'jenkins-slack-token',
                 message: """
                  *Pipeline Failed!*
                 
